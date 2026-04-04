@@ -235,7 +235,7 @@ impl Dds {
 
         // Then try to calculate it ourselves
         if let Some(bpp) = self.get_bits_per_pixel() {
-            return Some((bpp * self.get_width() + 7) / 8);
+            return Some((bpp * self.get_width()).div_ceil(8));
         }
         None
     }
@@ -295,7 +295,7 @@ impl Dds {
             }
         }
         if let Some(bpp) = self.get_bits_per_pixel() {
-            (bpp + 7) / 8
+            bpp.div_ceil(8)
         } else {
             1
         }
@@ -347,7 +347,7 @@ fn get_texture_size(
     if let Some(ls) = linear_size {
         Some(ls)
     } else if let Some(pitch) = pitch {
-        let row_height = (height + (pitch_height - 1)) / pitch_height;
+        let row_height = height.div_ceil(pitch_height);
         Some(pitch * row_height * depth)
     } else {
         None
@@ -369,7 +369,7 @@ fn get_array_stride(
 
     for _ in 0..mipmap_levels {
         let pitch = format.get_pitch(mip_width)?;
-        let row_height = (mip_height + (pitch_height - 1)) / pitch_height;
+        let row_height = mip_height.div_ceil(pitch_height);
         stride += pitch * row_height * mip_depth;
 
         mip_width = (mip_width / 2).max(1);

@@ -35,7 +35,7 @@ about the texture data, including:
 
 ## Minimum Supported Rust Version (MSRV)
 
-The MSRV of this crate is **1.71**. MSRV bumps are considered breaking changes
+The MSRV of this crate is **1.73**. MSRV bumps are considered breaking changes
 and will be accompanied by a minor version bump.
 
 ## History

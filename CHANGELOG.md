@@ -29,6 +29,7 @@ Per Keep a Changelog there are 6 main categories of changes:
 - Derived `Debug` and `Clone` for `NewD3dParams` and `NewDxgiParams`.
 
 ### Changed
+- Bumped MSRV to 1.73.
 - Updated `enum-primitive-derive` to 0.3. @cwfitzgerald (#5)
 
 ### Fixed

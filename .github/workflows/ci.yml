@@ -7,7 +7,7 @@ on:
 
 env:
   CI_RUST_VERSION: "1.94"
-  CI_RUST_MSRV: "1.71"
+  CI_RUST_MSRV: "1.73"
   RUSTFLAGS: -Dwarnings
   RUSTDOCFLAGS: -Dwarnings
 

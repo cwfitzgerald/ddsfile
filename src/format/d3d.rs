@@ -54,9 +54,10 @@ impl DataFormat for D3DFormat {
         };
 
         if let Some(bpp) = self.get_bits_per_pixel() {
-            Some((width * bpp as u32 + 7) / 8)
+            Some((width * bpp as u32).div_ceil(8))
         } else {
-            self.get_block_size().map(|bs| 1.max((width + 3) / 4) * bs)
+            self.get_block_size()
+                .map(|bs| 1.max(width.div_ceil(4)) * bs)
         }
     }
 

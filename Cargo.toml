@@ -13,7 +13,7 @@ keywords = ["dds"]
 categories = ["parsing", "game-development", "graphics"]
 readme = "README.md"
 edition = "2021"
-rust-version = "1.71"
+rust-version = "1.73"
 
 [dependencies]
 bitflags = "2.4"
