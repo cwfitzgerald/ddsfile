@@ -1,6 +1,6 @@
 [package]
 name = "ddsfile"
-version = "0.5.3-unstable"
+version = "0.6.0"
 authors = [
   "Mike Dilger <mike@optcomp.nz>",
   "Connor Fitzgerald <connorwadefitzgerald@gmail.com>",

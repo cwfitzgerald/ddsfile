@@ -16,6 +16,7 @@ Per Keep a Changelog there are 6 main categories of changes:
 #### Table of Contents
 
 - [Unreleased](#unreleased)
+- [v0.6.0](#v060)
 - [v0.5.2](#v052)
 - [v0.5.1](#v051)
 - [v0.5.0](#v050)
@@ -23,6 +24,10 @@ Per Keep a Changelog there are 6 main categories of changes:
 - [v0.2.0](#v020)
 
 ## Unreleased
+
+## v0.6.0
+
+Released 2026-04-04
 
 ### Added
 - Added support for non-standard ASTC LDR `DxgiFormat` variants (4x4 through 12x12) used by NVIDIA Texture Tools. Pitch and pitch height calculations correctly account for ASTC's variable block dimensions.
@@ -118,7 +123,8 @@ Released 2018-01-21
 
 ## Diffs
 
-- [Unreleased](https://github.com/cwfitzgerald/ddsfile/compare/v0.5.2...HEAD)
+- [Unreleased](https://github.com/cwfitzgerald/ddsfile/compare/v0.6.0...HEAD)
+- [v0.6.0](https://github.com/cwfitzgerald/ddsfile/compare/v0.5.2...v0.6.0)
 - [v0.5.2](https://github.com/cwfitzgerald/ddsfile/compare/v0.5.1...v0.5.2)
 - [v0.5.1](https://github.com/cwfitzgerald/ddsfile/compare/v0.5.0...v0.5.1)
 - [v0.5.0](https://github.com/cwfitzgerald/ddsfile/compare/v0.4.0...v0.5.0)
