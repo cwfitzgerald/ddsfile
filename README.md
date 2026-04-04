@@ -2,41 +2,32 @@
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE-MIT)
 
-[ddsfile on crates.io](https://crates.io/crates/ddsfile)
+[ddsfile on crates.io](https://crates.io/crates/ddsfile) — [Documentation](https://docs.rs/ddsfile)
 
-[Documentation](https://docs.rs/ddsfile)
+A library for reading and writing Microsoft DirectDraw Surface (.DDS) files.
+DDS is a container format for texture data, originally designed for DirectX but
+widely used across graphics APIs (OpenGL, Vulkan, Metal) and asset pipelines.
 
-This library is for parsing and composing Microsoft DirectDraw Surface (.DDS)
-files. Such files hold texture data, originally for DirectX, but other drawing
-APIs such as OpenGL and Vulkan can use the texture data. Many asset conditioning
-pipelines deal in this format only, so even if you are working with OpenGL or
-Vulkan you probably still need to handle .DDS files.
+This library handles the **container envelope** — parsing headers, computing
+layout metadata (pitch, stride, mipmap sizes), and providing access to the raw
+texture data. It does not decode or encode pixel data.
 
-This library supports mipmapped textures, volume textures, texture arrays,
-cube maps, compressed texture formats (DXTn / BCn) and the DirectX 10 extension
-header. Both the older D3DFormat and the newer DxgiFormat are supported, as
-well as files with the format undefined (whenever enough data is available to
-do so).
+## Features
 
-This library deals primarily with the *container envelope*.  The texture data
-itself is mostly opaque.  However, some data is available from the headers
-about the texture data, including:
+Both the legacy **D3DFormat** (Direct3D 9) and the modern **DxgiFormat**
+(DirectX 10+) are supported, including files where the format is identified
+only by bitmask. The library handles:
 
-* The format
-* The width, height, and depth
-* The bits per pixel, pitch and stride
-* The number of mipmap levels, if any
-* The minimum size in bytes of a mipmap level
-* The number of array layers, if any
-* RGBA bitmasks for uncompressed formats (only available for older D3DFormats
-  currently)
-* The block size for compressed formats
-* Several flags including CUBEMAP and LUMINANCE
+* Mipmapped textures, volume textures, texture arrays, and cubemaps
+* Compressed formats (DXT1–DXT5, BC1–BC7)
+* The DX10 extension header (`Header10`)
+* Layout queries: dimensions, bits per pixel, pitch, stride, block size,
+  array layer count, mipmap level count, and RGBA bitmasks
 
 ## Minimum Supported Rust Version (MSRV)
 
 The MSRV of this crate is **1.73**. MSRV bumps are considered breaking changes
-and will be accompanied by a minor version bump.
+and will be accompanied by a major version bump.
 
 ## History
 

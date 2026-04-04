@@ -1,14 +1,23 @@
 use std::fmt;
 
+/// Errors that can occur when reading, writing, or querying a DDS file.
 #[derive(Debug)]
 pub enum Error {
+    /// A formatting error from [`std::fmt`].
     Fmt(fmt::Error),
+    /// An I/O error from reading or writing.
     Io(std::io::Error),
+    /// A general error with a descriptive message.
     General(String),
+    /// The file does not start with the `"DDS "` magic number.
     BadMagicNumber,
+    /// A header field contains an invalid or unrecognized value.
     InvalidField(String),
+    /// The file was truncated before all expected data could be read.
     ShortFile,
+    /// The format is not supported well enough to complete the requested operation.
     UnsupportedFormat,
+    /// An array layer index was out of bounds.
     OutOfBounds,
 }
 

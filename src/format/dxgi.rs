@@ -2,6 +2,19 @@ use super::pixel_format::{FourCC, PixelFormat};
 use super::DataFormat;
 use enum_primitive_derive::Primitive;
 
+/// Pixel formats from the DirectX Graphics Infrastructure (DXGI), introduced
+/// with DirectX 10.
+///
+/// Variant names encode the channel layout, bit depth, and data type:
+/// - Channel letters: `R`, `G`, `B`, `A` (color), `D` (depth), `S` (stencil),
+///   `X` (unused bits).
+/// - Suffixes: `UNorm` (unsigned normalized), `SNorm` (signed normalized),
+///   `UInt`, `SInt`, `Float`, `Typeless` (no interpretation), `sRGB`.
+/// - `BC1`–`BC7`: Block-compressed formats (BC1/BC4 = 8 bytes/block,
+///   BC2/BC3/BC5/BC6H/BC7 = 16 bytes/block).
+///
+/// Files using this format system have a [`Header10`](crate::Header10)
+/// extension. Use [`Dds::new_dxgi`](crate::Dds::new_dxgi) to create them.
 #[rustfmt::skip]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Primitive)]
@@ -385,6 +398,12 @@ impl DataFormat for DxgiFormat {
 }
 
 impl DxgiFormat {
+    /// Attempts to determine the `DxgiFormat` from a legacy [`PixelFormat`].
+    ///
+    /// Only succeeds for a small set of FourCC codes that map unambiguously to
+    /// DXGI formats (`DXT1` → `BC1_UNorm_sRGB`, `DXT3` → `BC2_UNorm_sRGB`,
+    /// `DXT5` → `BC3_UNorm_sRGB`, `ATI1` → `BC4_UNorm`, `ATI2` → `BC5_UNorm`).
+    /// Returns `None` for all other formats including bitmask-identified ones.
     pub fn try_from_pixel_format(pixel_format: &PixelFormat) -> Option<DxgiFormat> {
         if let Some(ref fourcc) = pixel_format.fourcc {
             match fourcc.0 {

@@ -6,35 +6,43 @@ use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std::fmt;
 use std::io::{Read, Write};
 
+/// Describes the pixel layout within the legacy DDS header.
+///
+/// Most users don't need to interact with this directly — it is parsed
+/// internally when reading a file, and constructed automatically by
+/// [`Dds::new_d3d`](crate::Dds::new_d3d) and [`Dds::new_dxgi`](crate::Dds::new_dxgi).
+///
+/// For [`DxgiFormat`] files, the `fourcc` is set to `"DX10"` and the bitmask
+/// fields are unused; the actual format lives in [`Header10::dxgi_format`](crate::Header10::dxgi_format).
 #[derive(Clone)]
 pub struct PixelFormat {
-    /// Size of this structure in bytes; set to 32
+    /// Size of this structure in bytes. Always `32`.
     pub size: u32,
 
-    /// Values which indicate what type of data is in the surface
+    /// Flags indicating which fields contain valid data.
     pub flags: PixelFormatFlags,
 
-    /// Codes for specifying compressed or custom formats.
+    /// FourCC code for compressed or extended formats. `None` for uncompressed
+    /// bitmask-identified formats. Set to `FourCC::DX10` when a [`Header10`](crate::Header10)
+    /// is present.
     pub fourcc: Option<FourCC>,
 
-    /// Number of bits in an RGB (possibly including alpha) format. Valid when
-    /// flags includes RGB or LUMINANCE.
+    /// Total bits per pixel for uncompressed formats. Only valid when `flags`
+    /// contains [`PixelFormatFlags::RGB`] or [`PixelFormatFlags::LUMINANCE`].
     pub rgb_bit_count: Option<u32>,
 
-    /// Red (or Y) mask for reading color data. For instance, given the A8R8G8B8 format,
-    /// the red mask would be 0x00ff0000.
+    /// Red (or luminance) channel bitmask. For example, `0x00ff0000` for `A8R8G8B8`.
     pub r_bit_mask: Option<u32>,
 
-    /// Green (or U) mask for reading color data. For instance, given the A8R8G8B8 format,
-    /// the green mask would be 0x0000ff00.
+    /// Green channel bitmask. For example, `0x0000ff00` for `A8R8G8B8`.
     pub g_bit_mask: Option<u32>,
 
-    /// Blue (or V) mask for reading color data. For instance, given the A8R8G8B8 format,
-    /// the blue mask would be 0x000000ff
+    /// Blue channel bitmask. For example, `0x000000ff` for `A8R8G8B8`.
     pub b_bit_mask: Option<u32>,
 
-    /// Alpha mask for reading alpha data. Valid of flags includes ALPHA_PIXELS or ALPHA.
-    /// For instance, given the A8R8G8B8 format, the alpha mask would be 0xff000000
+    /// Alpha channel bitmask. For example, `0xff000000` for `A8R8G8B8`. Only
+    /// valid when `flags` contains [`PixelFormatFlags::ALPHA_PIXELS`] or
+    /// [`PixelFormatFlags::ALPHA`].
     pub a_bit_mask: Option<u32>,
 }
 
@@ -173,39 +181,34 @@ impl From<DxgiFormat> for PixelFormat {
 }
 
 bitflags! {
+    /// Flags indicating which fields in [`PixelFormat`] contain valid data.
+    ///
+    /// Most users don't need to inspect these directly.
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     pub struct PixelFormatFlags: u32 {
-        /// Texture contains alpha data.
+        /// Texture contains alpha data in addition to RGB.
         const ALPHA_PIXELS = 0x1;
-        /// Alpha channel only uncomressed data (used in older DDS files)
+        /// Alpha-only uncompressed data (legacy).
         const ALPHA = 0x2;
-        /// Texture contains compressed RGB data.
+        /// Texture uses a FourCC code (compressed or extended format).
         const FOURCC = 0x4;
-        /// Texture contains uncompressed RGB data.
+        /// Texture contains uncompressed RGB data (bitmask-identified).
         const RGB = 0x40;
-        /// YUV uncompressed data (used in older DDS files)
+        /// YUV uncompressed data (legacy).
         const YUV = 0x200;
-        /// Single channel color uncompressed data (used in older DDS files)
+        /// Single-channel luminance data (legacy).
         const LUMINANCE = 0x20000;
     }
 }
 
+/// A four-character code stored as a little-endian `u32`.
+///
+/// FourCC codes identify compressed and extended formats in legacy DDS files.
+/// The associated constants on this type cover all codes used by D3D and DXGI
+/// formats. Most users won't construct these directly — they are handled
+/// internally during read/write.
 #[derive(Debug, Clone, PartialEq)]
 pub struct FourCC(pub u32);
-
-// generate little-endian u32 from 4 bytes
-// rust is not ready for this yet
-/*
-macro_rules! u32_code {
-    ($w:expr) => {
-        ((($w[0] as u32) <<  0) |
-         (($w[1] as u32) <<  8) |
-         (($w[2] as u32) << 16) |
-         (($w[3] as u32) << 24) |
-         ((*$w as [u8; 4])[0] as u32 * 0))
-    }
-}
- */
 
 impl FourCC {
     pub const NONE: u32 = 0;

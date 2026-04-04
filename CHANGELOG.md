@@ -27,6 +27,7 @@ Per Keep a Changelog there are 6 main categories of changes:
 ### Added
 - Derived `Clone` for `Dds`. @ScanMountGoat ([#17](https://github.com/SiegeEngine/ddsfile/pull/17))
 - Derived `Debug` and `Clone` for `NewD3dParams` and `NewDxgiParams`.
+- Documentation of all items in the crate. @cwfitzgerald in 
 
 ### Changed
 - Bumped MSRV to 1.73.
@@ -34,8 +35,8 @@ Per Keep a Changelog there are 6 main categories of changes:
 
 ### Fixed
 - Fixed `A8` pixel format not being detected when `rgb_bit_count` is absent, by relaxing the bit count validation when `DDPF_RGB`, `DDPF_LUMINANCE`, and `DDPF_YUV` are not flagged. @LoopyAshy ([#16](https://github.com/SiegeEngine/ddsfile/pull/16))
-- Fixed `get_array_stride` computing incorrect mipmap chain sizes for non-square block-compressed textures and volume textures. The function now computes each mip level's actual size from dimensions instead of assuming each level is 1/4 the previous. ([#2](https://github.com/cwfitzgerald/ddsfile/issues/2))
-- Fixed `get_num_array_layers` returning the number of cubemaps instead of the number of faces for DX10 cubemaps, making faces beyond the first inaccessible via `get_data`. ([#1](https://github.com/cwfitzgerald/ddsfile/issues/1))
+- Fixed `get_array_stride` computing incorrect mipmap chain sizes for non-square block-compressed textures and volume textures. The function now computes each mip level's actual size from dimensions instead of assuming each level is 1/4 the previous. (#2)
+- Fixed `get_num_array_layers` returning the number of cubemaps instead of the number of faces for DX10 cubemaps, making faces beyond the first inaccessible via `get_data`. (#1)
 - Fixed incorrect `get_bits_per_pixel` for several DXGI video formats: `AI44`/`IA44` (44 → 8), `Y410` (10 → 32), `Y416` (16 → 64), `Y210` (10 → 32), `Y216` (16 → 32). Planar and opaque formats (`NV12`, `P010`, `P016`, `Format_420_Opaque`, `NV11`, `P208`, `V208`, `V408`) now correctly return `None`.
 
 ## v0.5.2

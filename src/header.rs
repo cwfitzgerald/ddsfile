@@ -6,6 +6,13 @@ use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std::fmt;
 use std::io::{Read, Write};
 
+/// The mandatory 124-byte DDS header present in every DDS file.
+///
+/// Contains surface dimensions, pixel format, mipmap count, and capability flags.
+/// Most users should use the getter methods on [`Dds`](crate::Dds) rather than
+/// reading these fields directly, as the getters handle both D3D and DXGI paths.
+///
+/// The fields are public for direct inspection and advanced use cases.
 #[derive(Clone)]
 pub struct Header {
     // Size of this structure in bytes; set to 124
@@ -15,35 +22,38 @@ pub struct Header {
     // Flags indicating which members contain valid data
     flags: HeaderFlags,
 
-    /// Surface height (in pixels)
+    /// Surface height in pixels.
     pub height: u32,
 
-    /// Surface width (in pixels)
+    /// Surface width in pixels.
     pub width: u32,
 
-    /// The pitch or number of bytes per scan line in an uncompressed texture;
+    /// Bytes per scanline for uncompressed textures. Mutually exclusive with
+    /// `linear_size`. `None` for compressed formats.
     pub pitch: Option<u32>,
 
-    /// The total number of bytes in a top level texture for a compressed texture
+    /// Total bytes of the top-level texture for compressed formats. Mutually
+    /// exclusive with `pitch`. `None` for uncompressed formats.
     pub linear_size: Option<u32>,
 
-    /// Depth of a volume texture (in pixels)
+    /// Depth for volume textures. `None` for non-volume textures.
     pub depth: Option<u32>,
 
-    /// Number of mipmap levels
+    /// Number of mipmap levels. `None` when no mipmaps are present.
     pub mip_map_count: Option<u32>,
 
     // Unused (reserved)
     // technically not required, but we write back what we read
     reserved1: [u32; 11],
 
-    /// The pixel format
+    /// The pixel format descriptor. For DXGI files, the FourCC is `"DX10"` and
+    /// the actual format is in [`Header10::dxgi_format`](crate::Header10::dxgi_format).
     pub spf: PixelFormat,
 
-    /// Specifies the complexity of the surfaces stored.
+    /// Surface complexity flags.
     pub caps: Caps,
 
-    /// Additional detail about the surfaces stored
+    /// Additional surface flags (cubemap faces, volume).
     pub caps2: Caps2,
 
     // Unused
@@ -307,6 +317,10 @@ impl fmt::Debug for Header {
 }
 
 bitflags! {
+    /// Flags indicating which header fields contain valid data.
+    ///
+    /// Set automatically when constructing headers. Most users don't need to
+    /// inspect or modify these directly.
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     pub struct HeaderFlags: u32 {
         /// Required in every DDS file
@@ -329,6 +343,11 @@ bitflags! {
 }
 
 bitflags! {
+    /// Surface complexity flags.
+    ///
+    /// [`TEXTURE`](Self::TEXTURE) is always set. [`COMPLEX`](Self::COMPLEX) and
+    /// [`MIPMAP`](Self::MIPMAP) are set automatically when creating mipmapped,
+    /// cubemap, or volume textures.
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     pub struct Caps: u32 {
         /// Optional; Must be used on any file that contains more than one surface
@@ -342,6 +361,13 @@ bitflags! {
 }
 
 bitflags! {
+    /// Additional surface detail flags for cubemaps and volume textures.
+    ///
+    /// For cubemaps, set [`CUBEMAP`](Self::CUBEMAP) along with one or more face
+    /// flags, or use [`CUBEMAP_ALLFACES`](Self::CUBEMAP_ALLFACES) for all six.
+    /// For volume textures, set [`VOLUME`](Self::VOLUME). Pass these via the
+    /// `caps2` field in [`NewD3dParams`](crate::NewD3dParams) or
+    /// [`NewDxgiParams`](crate::NewDxgiParams).
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     pub struct Caps2: u32 {
         /// Required for a cube map

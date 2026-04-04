@@ -8,22 +8,44 @@ use num_traits::FromPrimitive;
 use std::fmt;
 use std::io::{Read, Write};
 
+/// The type of resource stored in the DDS file.
+///
+/// Used in [`Header10::resource_dimension`] and in
+/// [`NewDxgiParams::resource_dimension`](crate::NewDxgiParams::resource_dimension).
+/// Cubemaps use [`Texture2D`](Self::Texture2D).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Primitive)]
 pub enum D3D10ResourceDimension {
+    /// Resource type is unknown.
     Unknown = 0,
+    /// Buffer resource (not typically used in DDS files).
     Buffer = 1,
+    /// 1D texture.
     Texture1D = 2,
+    /// 2D texture. Also used for cubemaps.
     Texture2D = 3,
+    /// 3D (volume) texture.
     Texture3D = 4,
 }
 
+/// The DX10 extension header (20 bytes), present in DDS files that use
+/// [`DxgiFormat`](crate::DxgiFormat).
+///
+/// Carries the actual DXGI format enum, resource dimension, array size, and
+/// alpha mode. Its presence is signaled by `FourCC = "DX10"` in the main
+/// header's [`PixelFormat`](crate::PixelFormat).
 #[derive(Clone)]
 pub struct Header10 {
+    /// The DXGI pixel format.
     pub dxgi_format: DxgiFormat,
+    /// The type of resource (1D, 2D, 3D texture).
     pub resource_dimension: D3D10ResourceDimension,
+    /// Miscellaneous flags. Currently only [`MiscFlag::TEXTURECUBE`] is defined.
     pub misc_flag: MiscFlag,
+    /// Number of array elements. For cubemaps, this is the number of _cubemaps_
+    /// (not faces) — each cubemap has 6 faces. For non-array textures this is `1`.
     pub array_size: u32,
-    /// This is called misc_flags2 in the official documentation
+    /// How to interpret the alpha channel. Called `misc_flags2` in the official
+    /// Microsoft documentation.
     pub alpha_mode: AlphaMode,
 }
 
@@ -108,19 +130,33 @@ impl Header10 {
 }
 
 bitflags! {
+    /// Miscellaneous resource flags for [`Header10`].
+    ///
+    /// Currently only [`TEXTURECUBE`](Self::TEXTURECUBE) is defined by the
+    /// specification. Set automatically when `is_cubemap` is `true` in
+    /// [`NewDxgiParams`](crate::NewDxgiParams).
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     pub struct MiscFlag: u32 {
-        /// 2D Texture is a cube-map texture
+        /// Indicates the texture is a cubemap.
         const TEXTURECUBE = 0x4;
     }
 }
 
+/// Describes how to interpret the alpha channel in a DDS texture.
+///
+/// Used in [`Header10::alpha_mode`] and
+/// [`NewDxgiParams::alpha_mode`](crate::NewDxgiParams::alpha_mode).
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Primitive)]
 pub enum AlphaMode {
+    /// Alpha behavior is unspecified.
     Unknown = 0x0,
+    /// Alpha is straight (non-premultiplied).
     Straight = 0x1,
+    /// Alpha is premultiplied into the color channels.
     PreMultiplied = 0x2,
+    /// Alpha channel should be ignored; the texture is fully opaque.
     Opaque = 0x3,
+    /// Alpha is application-defined.
     Custom = 0x4,
 }

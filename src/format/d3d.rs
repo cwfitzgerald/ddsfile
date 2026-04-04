@@ -1,6 +1,17 @@
 use super::pixel_format::{FourCC, PixelFormat, PixelFormatFlags};
 use super::DataFormat;
 
+/// Pixel formats from the legacy Direct3D 9 era.
+///
+/// These are identified in DDS files either by FourCC codes (for compressed and
+/// multi-channel packed formats) or by RGB bitmasks in the [`PixelFormat`] (for
+/// uncompressed formats). Variant names follow the original D3D naming convention
+/// where channel letters are followed by bit counts (e.g. `A8R8G8B8` = 8-bit
+/// alpha, red, green, blue in that order).
+///
+/// For new files, prefer [`DxgiFormat`](super::DxgiFormat) unless you need compatibility with tools
+/// that only understand D3D formats. Use [`Dds::new_d3d`](crate::Dds::new_d3d)
+/// to create a file with a `D3DFormat`.
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum D3DFormat {
@@ -263,8 +274,11 @@ impl D3DFormat {
         }
     }
 
-    /// This attempts to use `PixelFormat` data (e.g. from the dds.header.spf field)
-    /// to determine the `D3DFormat`.
+    /// Attempts to determine the `D3DFormat` from a [`PixelFormat`].
+    ///
+    /// Matches against FourCC codes first, then falls back to bitmask matching.
+    /// Returns `None` if the pixel format is `DX10` (use [`DxgiFormat`](super::DxgiFormat) instead)
+    /// or is unrecognized.
     pub fn try_from_pixel_format(pixel_format: &PixelFormat) -> Option<D3DFormat> {
         if let Some(ref fourcc) = pixel_format.fourcc {
             match fourcc.0 {
