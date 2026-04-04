@@ -18,5 +18,5 @@ rust-version = "1.71"
 [dependencies]
 bitflags = "2.4"
 byteorder = "1.5"
-enum-primitive-derive = "0.2"
+enum-primitive-derive = "0.3"
 num-traits = "0.2"

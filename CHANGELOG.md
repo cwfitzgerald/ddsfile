@@ -28,6 +28,9 @@ Per Keep a Changelog there are 6 main categories of changes:
 - Derived `Clone` for `Dds`. @ScanMountGoat ([#17](https://github.com/SiegeEngine/ddsfile/pull/17))
 - Derived `Debug` and `Clone` for `NewD3dParams` and `NewDxgiParams`.
 
+### Changed
+- Updated `enum-primitive-derive` to 0.3. @cwfitzgerald (#5)
+
 ### Fixed
 - Fixed `A8` pixel format not being detected when `rgb_bit_count` is absent, by relaxing the bit count validation when `DDPF_RGB`, `DDPF_LUMINANCE`, and `DDPF_YUV` are not flagged. @LoopyAshy ([#16](https://github.com/SiegeEngine/ddsfile/pull/16))
 
