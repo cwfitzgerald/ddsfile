@@ -33,6 +33,7 @@ Per Keep a Changelog there are 6 main categories of changes:
 
 ### Fixed
 - Fixed `A8` pixel format not being detected when `rgb_bit_count` is absent, by relaxing the bit count validation when `DDPF_RGB`, `DDPF_LUMINANCE`, and `DDPF_YUV` are not flagged. @LoopyAshy ([#16](https://github.com/SiegeEngine/ddsfile/pull/16))
+- Fixed incorrect `get_bits_per_pixel` for several DXGI video formats: `AI44`/`IA44` (44 → 8), `Y410` (10 → 32), `Y416` (16 → 64), `Y210` (10 → 32), `Y216` (16 → 32). Planar and opaque formats (`NV12`, `P010`, `P016`, `Format_420_Opaque`, `NV11`, `P208`, `V208`, `V408`) now correctly return `None`.
 
 ## v0.5.2
 
