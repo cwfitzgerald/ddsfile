@@ -1,4 +1,3 @@
-extern crate ddsfile;
 use ddsfile::*;
 
 use std::env;

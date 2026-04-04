@@ -33,6 +33,18 @@ about the texture data, including:
 * The block size for compressed formats
 * Several flags including CUBEMAP and LUMINANCE
 
+## Minimum Supported Rust Version (MSRV)
+
+The MSRV of this crate is **1.71**. MSRV bumps are considered breaking changes
+and will be accompanied by a minor version bump.
+
+## History
+
+This crate was originally created and maintained by Mike Dilger at
+[SiegeEngine/ddsfile](https://github.com/SiegeEngine/ddsfile) and was also
+hosted at [PistonDevelopers/ddsfile](https://github.com/PistonDevelopers/ddsfile).
+Thank you to Mike and all past contributors for their work on this library.
+
 ## License
 
 Licensed under the MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)

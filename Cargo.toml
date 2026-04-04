@@ -1,14 +1,19 @@
 [package]
 name = "ddsfile"
 version = "0.5.3-unstable"
-authors = ["Mike Dilger <mike@optcomp.nz>"]
+authors = [
+  "Mike Dilger <mike@optcomp.nz>",
+  "Connor Fitzgerald <connorwadefitzgerald@gmail.com>",
+]
 description = "DirectDraw Surface file format parser/composer"
-repository = "https://github.com/SiegeEngine/ddsfile"
+repository = "https://github.com/cwfitzgerald/ddsfile"
 documentation = "https://docs.rs/ddsfile"
 license = "MIT"
-keywords = [ "dds" ]
+keywords = ["dds"]
+categories = ["parsing", "game-development", "graphics"]
 readme = "README.md"
 edition = "2021"
+rust-version = "1.71"
 
 [dependencies]
 bitflags = "2.4"

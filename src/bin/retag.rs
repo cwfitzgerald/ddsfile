@@ -1,8 +1,6 @@
 // This is for re-tagging the format of a file that is tagged wrong.
 // The data is not converted in any way.
 
-extern crate ddsfile;
-
 use ddsfile::*;
 
 use std::env;

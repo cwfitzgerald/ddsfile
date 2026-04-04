@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [trunk]
+  pull_request:
+
+env:
+  CI_RUST_VERSION: "1.94"
+  CI_RUST_MSRV: "1.71"
+  RUSTFLAGS: -Dwarnings
+  RUSTDOCFLAGS: -Dwarnings
+
+jobs:
+  ci:
+    name: CI ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cwfitzgerald/repo-common/.github/actions/install-rust@trunk
+        with:
+          version: ${{ env.CI_RUST_VERSION }}
+          components: clippy
+
+      - uses: taiki-e/install-action@cargo-nextest
+
+      - name: Clippy
+        run: cargo clippy --all-features --all-targets
+
+      - name: Doc
+        run: cargo doc --no-deps
+
+      - name: Test
+        run: cargo nextest run
+
+      - name: Doctest
+        run: cargo test --doc
+
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cwfitzgerald/repo-common/.github/actions/install-rust@trunk
+        with:
+          version: ${{ env.CI_RUST_VERSION }}
+          components: rustfmt
+
+      - name: Format
+        run: cargo fmt --check
+
+  deny:
+    name: Deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: taiki-e/install-action@cargo-deny
+
+      - name: Deny
+        run: cargo deny --all-features check
+
+  msrv:
+    name: MSRV
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: ""
+      RUSTDOCFLAGS: ""
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cwfitzgerald/repo-common/.github/actions/install-rust@trunk
+        with:
+          version: ${{ env.CI_RUST_MSRV }}
+
+      - name: Check
+        run: cargo check
+
+      - name: Check (no default features)
+        run: cargo check --no-default-features
