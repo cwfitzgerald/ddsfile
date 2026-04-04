@@ -25,6 +25,7 @@ Per Keep a Changelog there are 6 main categories of changes:
 ## Unreleased
 
 ### Added
+- Added support for non-standard ASTC LDR `DxgiFormat` variants (4x4 through 12x12) used by NVIDIA Texture Tools. Pitch and pitch height calculations correctly account for ASTC's variable block dimensions.
 - Derived `Clone` for `Dds`. @ScanMountGoat ([#17](https://github.com/SiegeEngine/ddsfile/pull/17))
 - Derived `Debug` and `Clone` for `NewD3dParams` and `NewDxgiParams`.
 - Documentation of all items in the crate. @cwfitzgerald in 
