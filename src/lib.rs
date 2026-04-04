@@ -59,25 +59,15 @@ impl Dds {
 
     /// Create a new DirectDraw Surface with a D3DFormat
     pub fn new_d3d(params: NewD3dParams) -> Result<Dds, Error> {
-        let size = match get_texture_size(
-            params.format.get_pitch(params.width),
-            None,
-            params.format.get_pitch_height(),
+        let mml = params.mipmap_levels.unwrap_or(1);
+        let data_size = get_array_stride(
+            params.width,
             params.height,
             params.depth,
-        ) {
-            Some(s) => s,
-            None => return Err(Error::UnsupportedFormat),
-        };
-
-        let mml = params.mipmap_levels.unwrap_or(1);
-        let min_mipmap_size = match params.format.get_minimum_mipmap_size_in_bytes() {
-            Some(mms) => mms,
-            None => return Err(Error::UnsupportedFormat),
-        };
-        let array_stride = get_array_stride(size, min_mipmap_size, mml);
-
-        let data_size = array_stride;
+            mml,
+            &params.format,
+        )
+        .ok_or(Error::UnsupportedFormat)?;
 
         Ok(Dds {
             header: Header::new_d3d(
@@ -96,24 +86,15 @@ impl Dds {
     /// Create a new DirectDraw Surface with a DxgiFormat
     pub fn new_dxgi(params: NewDxgiParams) -> Result<Dds, Error> {
         let arraysize = params.array_layers.unwrap_or(1);
-
-        let size = match get_texture_size(
-            params.format.get_pitch(params.width),
-            None,
-            params.format.get_pitch_height(),
+        let mml = params.mipmap_levels.unwrap_or(1);
+        let array_stride = get_array_stride(
+            params.width,
             params.height,
             params.depth,
-        ) {
-            Some(s) => s,
-            None => return Err(Error::UnsupportedFormat),
-        };
-
-        let mml = params.mipmap_levels.unwrap_or(1);
-        let min_mipmap_size = match params.format.get_minimum_mipmap_size_in_bytes() {
-            Some(mms) => mms,
-            None => return Err(Error::UnsupportedFormat),
-        };
-        let array_stride = get_array_stride(size, min_mipmap_size, mml);
+            mml,
+            &params.format,
+        )
+        .ok_or(Error::UnsupportedFormat)?;
 
         let data_size = arraysize * array_stride;
 
@@ -278,13 +259,15 @@ impl Dds {
     }
 
     pub fn get_array_stride(&self) -> Result<u32, Error> {
-        let size = match self.get_main_texture_size() {
-            Some(s) => s,
-            None => return Err(Error::UnsupportedFormat),
-        };
-        let mml = self.get_num_mipmap_levels();
-        let min_mipmap_size = self.get_min_mipmap_size_in_bytes();
-        Ok(get_array_stride(size, min_mipmap_size, mml))
+        let format = self.get_format().ok_or(Error::UnsupportedFormat)?;
+        get_array_stride(
+            self.header.width,
+            self.header.height,
+            self.header.depth,
+            self.get_num_mipmap_levels(),
+            &*format,
+        )
+        .ok_or(Error::UnsupportedFormat)
     }
 
     pub fn get_num_array_layers(&self) -> u32 {
@@ -371,17 +354,30 @@ fn get_texture_size(
     }
 }
 
-fn get_array_stride(texture_size: u32, min_mipmap_size: u32, mipmap_levels: u32) -> u32 {
+fn get_array_stride(
+    width: u32,
+    height: u32,
+    depth: Option<u32>,
+    mipmap_levels: u32,
+    format: &dyn DataFormat,
+) -> Option<u32> {
     let mut stride: u32 = 0;
-    let mut current_mipsize: u32 = texture_size;
+    let mut mip_width = width;
+    let mut mip_height = height;
+    let mut mip_depth = depth.unwrap_or(1);
+    let pitch_height = format.get_pitch_height();
+
     for _ in 0..mipmap_levels {
-        stride += current_mipsize;
-        current_mipsize /= 4;
-        if current_mipsize < min_mipmap_size {
-            current_mipsize = min_mipmap_size;
-        }
+        let pitch = format.get_pitch(mip_width)?;
+        let row_height = (mip_height + (pitch_height - 1)) / pitch_height;
+        stride += pitch * row_height * mip_depth;
+
+        mip_width = (mip_width / 2).max(1);
+        mip_height = (mip_height / 2).max(1);
+        mip_depth = (mip_depth / 2).max(1);
     }
-    stride
+
+    Some(stride)
 }
 
 impl fmt::Debug for Dds {
